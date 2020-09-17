@@ -1,10 +1,17 @@
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_jwt.serializers import jwt_payload_handler
+from django.contrib.auth.signals import user_logged_in
+
+
 from user.api.serializers import RegistrationSerializer
 from user.api.serializers import ResetPasswordSerializer
+from django.conf import settings
 from ..models import User as UserModel
 
+import jwt
 @api_view(['POST'])
 def registration_view(request):
     if request.method == 'POST':
@@ -33,6 +40,36 @@ def reset_password_view(request, user_id):
         data = serializer.errors
     return Response(data)
 
+
+@api_view(['POST'])
+@permission_classes([AllowAny, ])
+def authenticate_user(request):
+    try:
+        username = request.data['username']
+        password = request.data['password']
+        user = UserModel.objects.get(username=username)
+        if not user.check_password(password):
+            return Response({'error': 'incorrect password'})
+        if user:
+            try:
+                payload = jwt_payload_handler(user)
+                token = jwt.encode(payload, settings.SECRET_KEY)
+                user_details =  {}
+                user_details['username'] = user.username
+                user_details['email'] = user.email
+                user_details['token'] = token
+                user_logged_in.send(sender=user.__class__,
+                                    request=request, user=user)
+                return Response(user_details, status=status.HTTP_200_OK)
+            except Exception as e:
+                raise e
+        else:
+            res = {
+                'error': 'failed to authenticate with given credentials'
+            }
+            return Response(res, status=status.HTTP_403_FORBIDDEN)
+    except KeyError:
+        return Response({'error': 'Please provide the username and password'})
 '''
 {
  "email" : "asjad@asjad.com",
