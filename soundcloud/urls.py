@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/user', include('user.api.urls', 'user_api')),
     path('auth/', include('rest_framework.urls')),
+    path('api/songs', include('songs.api.urls', 'song_api'))
     # path('api/token', TokenObtainPairView.as_view()),
     # path('api/token/refresh', TokenRefreshView.as_view())
 ]
