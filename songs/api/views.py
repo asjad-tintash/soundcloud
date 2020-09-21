@@ -14,7 +14,7 @@ class TagViewSet(viewsets.ModelViewSet):
 
 
 class SongViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     queryset = Song.objects.all()
     serializer_class = SongSerializer
 
@@ -26,18 +26,24 @@ class SongViewSet(viewsets.ModelViewSet):
             return Response({"message": "You don't have permission to add songs"}, status=403)
 
     def tag_song(self, request, *args, **kwargs):
-        if not request.user.is_admin:
-            return Response({"Error": "Only admin can add tags"}, status=403)
+        # if not request.user.is_admin:
+        #     return Response({"Error": "Only admin can add tags"}, status=403)
         song_id = request.data.get('song_id', None)
-        tag_id = request.data.get('tag_id', None)
+        tag_ = request.data.get('tag_id', None)
         song = Song.objects.get(id=song_id)
-        tag = Tag.objects.get(id=tag_id)
+        if isinstance(tag_, int):
+            tag = Tag.objects.get(id=tag_)
+        if isinstance(tag_, str):
+            tag = Tag(content=tag_)
+            tag.save()
         if tag and song:
             song.tag.add(tag)
             serializer = SongSerializer(song)
             return Response({"data": serializer.data}, status=200)
         else:
             return Response({"error": "Enter a valid song or tag id"})
+
+
 
 
 class CommentViewSet(viewsets.ModelViewSet):
