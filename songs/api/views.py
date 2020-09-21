@@ -39,8 +39,6 @@ class SongViewSet(viewsets.ModelViewSet):
             tag_id = str(tag[0].id)
             return queryset.filter(tag=tag_id)
 
-
-
     def create(self, request, *args, **kwargs):
         if request.user.is_admin:
             super().create(request)
@@ -65,6 +63,27 @@ class SongViewSet(viewsets.ModelViewSet):
             return Response({"data": serializer.data}, status=200)
         else:
             return Response({"error": "Enter a valid song or tag id"})
+
+    def view_song(self, request, *args, **kwargs):
+        try:
+            song_id = self.request.data['song_id']
+        except:
+            return Response({"Error": "Please pass a valid song id"})
+        song = Song.objects.get(id=song_id)
+        song.views += 1
+        song.save()
+        return Response({"Message": "Views incremented"}, status=200)
+
+    def like_song(self, request, *args, **kwargs):
+        try:
+            song_id = self.request.data['song_id']
+        except:
+            return Response({"Error": "Please pass a valid song id"})
+        song = Song.objects.get(id=song_id)
+        song.likes += 1
+        song.save()
+        return Response({"Message": "Likes incremented"}, status=200)
+
 
 
 
