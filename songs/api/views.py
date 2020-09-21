@@ -17,6 +17,29 @@ class SongViewSet(viewsets.ModelViewSet):
     # permission_classes = [IsAuthenticated]
     queryset = Song.objects.all()
     serializer_class = SongSerializer
+    # filter_backends = (DjangoFilterBackend,)
+
+
+    def get_queryset(self):
+        song_name = self.request.query_params.get('song_name', None)
+        tag_content = self.request.query_params.get('tag', None)
+        if song_name is "":
+            song_name = None
+        if tag_content is None:
+            tag_content = None
+        if song_name is None and tag_content is None:
+            return super().get_queryset()
+        queryset = Song.objects.all()
+        if song_name is not None:
+            return queryset.filter(name__startswith=song_name)
+
+        if tag_content is not None:
+            tags = Tag.objects.all()
+            tag = tags.filter(content=tag_content)
+            tag_id = str(tag[0].id)
+            return queryset.filter(tag=tag_id)
+
+
 
     def create(self, request, *args, **kwargs):
         if request.user.is_admin:
@@ -55,10 +78,10 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         song_id = self.request.query_params.get('song_id', None)
+        print(song_id)
         if song_id is None:
             return super().get_queryset()
         queryset = Comment.objects.all()
-
         return queryset.filter(song=song_id)
 
     def create(self, request, *args, **kwargs):
