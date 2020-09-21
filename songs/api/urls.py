@@ -15,5 +15,6 @@ router.register('/album', AlbumViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    # path('comment/<int:song_id>', '')
+    path('/comments_song/<int:song_id>', CommentViewSet.as_view({'get':'comments_song'})),
+    path('/tag_song', SongViewSet.as_view({"post": "tag_song"}))
 ]
