@@ -20,5 +20,6 @@ urlpatterns = [
     path('/view_song', SongViewSet.as_view({"post": "view_song"})),
     path('/like_song', SongViewSet.as_view({"post": "like_song"})),
     path('/follow_album', AlbumViewSet.as_view({"post": "follow_album"})),
+    path('/add_song', AlbumViewSet.as_view({"post": "add_song"})),
     # path('/song/<str:song_name>/<str:tag>', SongViewSet.as_view({'get':'search_song'}))
 ]

@@ -33,8 +33,19 @@ class Album(models.Model):
     title = models.CharField(max_length=100)
     public = models.BooleanField(default=False)
     followers = models.IntegerField(default=0)
+    owner = models.ForeignKey(User, related_name="album_owner", on_delete=models.CASCADE)
     user = models.ManyToManyField(User)
     song = models.ManyToManyField(Song)
 
     def __str__(self):
         return self.title
+
+
+class Notification(models.Model):
+    message = models.CharField(max_length=100)
+    user = models.ManyToManyField(User)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.message
+

@@ -2,7 +2,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from songs.api.serializers import TagSerializer, SongSerializer, CommentSerializer, AlbumSerializer
-from songs.models import Song, Comment, Tag, Album
+from songs.models import Song, Comment, Tag, Album, Notification
 from user.models import User
 from rest_framework.permissions import IsAdminUser, IsAuthenticatedOrReadOnly, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
@@ -137,3 +137,22 @@ class AlbumViewSet(viewsets.ModelViewSet):
             album.save()
             return Response({"Message": "Followed successfully"}, status=200)
         return Response({"Message": "Please send a valid album id"})
+
+    def add_song(self, request, *args, **kwargs):
+        album_id = self.request.data['album_id']
+        album = Album.objects.get(id=album_id)
+        album_users = album.user.all()
+        if not request.user == album.owner:
+            return Response({"Message": "Only owner can add songs"})
+        song_id = self.request.data['song_id']
+        song = Song.objects.get(id=song_id)
+        album.song.add(song)
+        album.save()
+        # generating notification
+        message = song.name + " has been added to album " + album.title
+        notification = Notification(message=message)
+        notification.save()
+        for user in album_users.iterator():
+            notification.user.add(user)
+        notification.save()
+        return Response({"message": "Song added successfully"})
