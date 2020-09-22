@@ -32,8 +32,8 @@ class Comment(models.Model):
 class Album(models.Model):
     title = models.CharField(max_length=100)
     public = models.BooleanField(default=False)
-    followers = models.IntegerField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    followers = models.IntegerField(default=0)
+    user = models.ManyToManyField(User)
     song = models.ManyToManyField(Song)
 
     def __str__(self):

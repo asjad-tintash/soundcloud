@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from songs.api.serializers import TagSerializer, SongSerializer, CommentSerializer, AlbumSerializer
 from songs.models import Song, Comment, Tag, Album
+from user.models import User
 from rest_framework.permissions import IsAdminUser, IsAuthenticatedOrReadOnly, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 import json
@@ -118,9 +119,21 @@ class CommentViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.validation_errors)
 
+
 class AlbumViewSet(viewsets.ModelViewSet):
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer
+    permission_classes = [IsAuthenticated]
 
-
-
+    def follow_album(self, request, *args, **kwargs):
+        user_id = self.request.user.id
+        print(user_id)
+        album_id = self.request.data['album_id']
+        album = Album.objects.get(id=album_id)
+        user = User.objects.get(id=user_id)
+        if album is not None:
+            album.followers += 1
+            album.user.add(user)
+            album.save()
+            return Response({"Message": "Followed successfully"}, status=200)
+        return Response({"Message": "Please send a valid album id"})
