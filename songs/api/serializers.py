@@ -1,4 +1,6 @@
+from django.db import models
 from rest_framework import serializers
+
 from songs.models import Song, Comment, Tag, Album
 
 
@@ -29,3 +31,25 @@ class AlbumSerializer(serializers.ModelSerializer):
     class Meta:
         model = Album
         fields = ['title', 'public', 'user', 'followers', 'song']
+
+
+class TagSongSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Song
+        fields = ['name', 'file', 'likes', 'views', 'tag']
+        tag_content = models.CharField(max_length=50)
+
+    def validate(self, data):
+        tag_content = data.get('tag_content', None)
+        if tag_content == "":
+            tag_content = None
+        if tag_content is None:
+            raise serializers.ValidationError("Tag content is required")
+        return data
+
+    def update(self, instance, validated_data):
+        tag_content = validated_data.get('tag_content', None)
+        tag, _ = Tag.objects.get_or_create(content=tag_content)
+        instance.tag.add(tag)
+        instance.save()
+        return instance

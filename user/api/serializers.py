@@ -6,6 +6,7 @@ from user.models import User
 class RegistrationSerializer(serializers.ModelSerializer):
 
     confirm_password = serializers.CharField(max_length=128)
+
     class Meta:
         model = User
         fields = ['email', 'username', 'password', 'confirm_password', 'is_admin']
@@ -48,20 +49,3 @@ class ResetPasswordSerializer(serializers.ModelSerializer):
         instance.save()
         print(instance.username)
         return instance
-
-
-'''
-{
- "email" : "asjad@asjad.com",
- "username": "asjad18",
- "password": "abcabc",
- "confirm_password": "abcabc",
- "is_admin": true
-}
-
-{
-"old_password": "acbabc",
-"new_password": "asjad",
-"confirm_password": "asjad",
-}
-'''
