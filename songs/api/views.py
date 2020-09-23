@@ -90,13 +90,6 @@ class CommentViewSet(viewsets.ModelViewSet):
     filter_fields = ('song',)
     permission_classes = (IsAuthenticatedOrReadOnly, )
 
-    def get_queryset(self):
-        song_id = self.request.query_params.get('song_id', None)
-        if song_id is None:
-            return super().get_queryset()
-        queryset = Comment.objects.all()
-        return queryset.filter(song=song_id)
-
     def perform_create(self, serializer):
         serializer.save(self.request.user)
 
