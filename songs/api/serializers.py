@@ -24,7 +24,13 @@ class SongSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['content', 'song', 'user']
+        fields = ['content', 'song']
+
+    def save(self, user):
+        comment = Comment(**self.validated_data)
+        comment.user = user
+        comment.save()
+        return comment
 
 
 class AlbumSerializer(serializers.ModelSerializer):

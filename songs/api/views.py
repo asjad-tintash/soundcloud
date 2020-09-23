@@ -88,19 +88,8 @@ class CommentViewSet(viewsets.ModelViewSet):
         queryset = Comment.objects.all()
         return queryset.filter(song=song_id)
 
-    def create(self, request, *args, **kwargs):
-        user_id = self.request.user.id
-        data = dict()
-        data['content'] = self.request.data['content']
-        data['song'] = self.request.data['song']
-        data['user'] = self.request.user.id
-        serializer = CommentSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            data = {'message': 'added comment successfuully'}
-            return Response(data, status=200)
-        else:
-            return Response(serializer.validation_errors)
+    def perform_create(self, serializer):
+        serializer.save(self.request.user)
 
 
 class AlbumViewSet(viewsets.ModelViewSet):
