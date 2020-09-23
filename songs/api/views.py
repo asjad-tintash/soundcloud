@@ -31,11 +31,13 @@ class SongViewSet(viewsets.ModelViewSet):
     """
     This is the viewset for the Tag model
     """
-    # permission_classes = [SongCreatePermission]
-    # permission_classes_by_action = {
-    #     'default': [IsAuthenticatedOrReadOnly],
-    #     'create': [SongCreatePermission],
-    # }
+    permission_classes = (SongCreatePermission, )
+    '''
+    permission_classes_by_action = {
+        'default': [IsAuthenticatedOrReadOnly],
+        'create': [SongCreatePermission],
+    }
+    '''
     queryset = Song.objects.all()
     serializer_class = SongSerializer
     filter_backends = (filters.SearchFilter,)
@@ -53,24 +55,31 @@ class SongViewSet(viewsets.ModelViewSet):
         serializer.update(song, data)
         return Response({"message": "Tag added successfully"}, status=200)
 
+    def increment(self, song_id, field):
+        try:
+            song = Song.objects.get(id=song_id)
+        except Song.DoesNotExist:
+            return Response({"Error": "Song with this id does not exist"}, status=404)
+        if field == "view":
+            song.views += 1
+        if field == "like":
+            song.likes += 1
+        song.save()
+
     def view_song(self, request, *args, **kwargs):
         try:
             song_id = self.request.data['song_id']
         except:
-            return Response({"Error": "Please pass a valid song id"})
-        song = Song.objects.get(id=song_id)
-        song.views += 1
-        song.save()
+            return Response({"Error": "Please pass a valid song id"}, status=400)
+        self.increment(song_id, "view")
         return Response({"Message": "Views incremented"}, status=200)
 
     def like_song(self, request, *args, **kwargs):
         try:
             song_id = self.request.data['song_id']
         except:
-            return Response({"Error": "Please pass a valid song id"})
-        song = Song.objects.get(id=song_id)
-        song.likes += 1
-        song.save()
+            return Response({"Error": "Please pass a valid song id"}, status=400)
+        self.increment(song_id, "like")
         return Response({"Message": "Likes incremented"}, status=200)
 
 
@@ -79,7 +88,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     filter_backends = (DjangoFilterBackend, )
     filter_fields = ('song',)
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
     def get_queryset(self):
         song_id = self.request.query_params.get('song_id', None)
