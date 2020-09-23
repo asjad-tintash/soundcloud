@@ -106,10 +106,9 @@ class AlbumViewSet(viewsets.ModelViewSet):
             album = Album.objects.get(id=album_id)
         except Album.DoesNotExist:
             return Response({"Error": "Album with this id does not exist"}, status=404)
-        user = User.objects.get(id=user_id)
 
         album.followers += 1
-        album.user.add(user)
+        album.user.add(request.user)
         album.save()
         return Response({"Message": "Followed successfully"}, status=200)
 

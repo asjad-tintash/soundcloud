@@ -16,14 +16,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
             email=self.validated_data['email'],
             username=self.validated_data['username'],
         )
-        is_admin = self.validated_data['is_admin']
+        is_admin = self.validated_data.get('is_admin', False)
         password = self.validated_data['password']
         confirm_password = self.validated_data['confirm_password']
         if password != confirm_password:
-            raise serializers.ValidationError({'password':'Passwords do not match'})
+            raise serializers.ValidationError({'password': 'Passwords do not match'})
         user.set_password(password)
-        if is_admin:
-            user.is_admin = True
+        user.is_admin = is_admin
         user.save()
         return user
 
@@ -47,5 +46,4 @@ class ResetPasswordSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'password': 'Passwords do not match'})
         instance.set_password(password)
         instance.save()
-        print(instance.username)
         return instance
