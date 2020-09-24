@@ -9,11 +9,6 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = ['content']
 
-    def validate_content(self, value):
-        if len(value) > 50:
-            raise serializers.ValidationError("Length of a tag should not be more than 50")
-        return value
-
 
 class SongSerializer(serializers.ModelSerializer):
     class Meta:
