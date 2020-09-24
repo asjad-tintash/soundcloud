@@ -37,6 +37,9 @@ class MyAccountManager(UserManager):
 
 
 class User(AbstractUser):
+    """
+    Overrides the default User class and adds an addition field "is_admin"
+    """
     is_admin = models.BooleanField(default=False)
     objects = MyAccountManager()
 

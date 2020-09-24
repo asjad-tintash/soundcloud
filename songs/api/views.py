@@ -44,6 +44,9 @@ class SongViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'tag__content']
 
     def tag_song(self, request, *args, **kwargs):
+        """
+        function to add tags in a song
+        """
         song_id = request.data.get('song_id', None)
         try:
             song = Song.objects.get(id=song_id)
@@ -56,6 +59,10 @@ class SongViewSet(viewsets.ModelViewSet):
         return Response({"message": "Tag added successfully"}, status=200)
 
     def increment(self, song_id, field):
+        """
+        function to increment views or like count depending on the field type
+        field can be view or like
+        """
         try:
             song = Song.objects.get(id=song_id)
         except Song.DoesNotExist:
@@ -67,6 +74,9 @@ class SongViewSet(viewsets.ModelViewSet):
         song.save()
 
     def view_song(self, request, *args, **kwargs):
+        """
+        function to increase view counts of the song
+        """
         try:
             song_id = self.request.data['song_id']
         except:
@@ -75,6 +85,9 @@ class SongViewSet(viewsets.ModelViewSet):
         return Response({"Message": "Views incremented"}, status=200)
 
     def like_song(self, request, *args, **kwargs):
+        """
+        function to increase the like count of the song
+        """
         try:
             song_id = self.request.data['song_id']
         except:
@@ -84,6 +97,9 @@ class SongViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+    """
+    This viewset provides endpoint to all Comment related API calls
+    """
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     filter_backends = (DjangoFilterBackend, )
@@ -91,15 +107,24 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly, )
 
     def perform_create(self, serializer):
+        """
+        function to save the user as comment owner at time of comment creation
+        """
         serializer.save(self.request.user)
 
 
 class AlbumViewSet(viewsets.ModelViewSet):
+    """
+        This viewset provides endpoint to all Album related API calls
+        """
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer
     permission_classes = (IsAuthenticated, )
 
     def follow_album(self, request, *args, **kwargs):
+        """
+        function to add user as a follower of album and increase the follower count
+        """
         user_id = self.request.user.id
         album_id = self.request.data.get('album_id', None)
         try:
@@ -113,6 +138,9 @@ class AlbumViewSet(viewsets.ModelViewSet):
         return Response({"Message": "Followed successfully"}, status=200)
 
     def add_song(self, request, *args, **kwargs):
+        """
+        function to add song in an album
+        """
         album_id = self.request.data['album_id']
         album = Album.objects.get(id=album_id)
         album_users = album.user.all()

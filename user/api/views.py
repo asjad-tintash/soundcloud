@@ -14,6 +14,9 @@ from ..models import User as UserModel
 
 @api_view(['POST'])
 def registration_view(request):
+    """
+    endpoint to register the user
+    """
     if request.method == 'POST':
         serializer = RegistrationSerializer(data=request.data)
         data = dict()
@@ -27,6 +30,9 @@ def registration_view(request):
 
 @api_view(['PATCH'])
 def reset_password_view(request, user_id):
+    """
+    end point to reset the password of user
+    """
     user = UserModel.objects.get(id=user_id)
     serializer = ResetPasswordSerializer(user, data=request.data)
     data = dict()
@@ -40,6 +46,9 @@ def reset_password_view(request, user_id):
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def authenticate_user(request):
+    """
+    end point for the login api. returns authentication token
+    """
     username = request.data.get('username', None)
     password = request.data.get('password', None)
     try:
