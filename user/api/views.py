@@ -58,18 +58,12 @@ def authenticate_user(request):
     if not user.check_password(password):
         return Response({'error': 'incorrect password'}, status=401)
     if user:
-        try:
-            payload = jwt_payload_handler(user)
-            token = jwt.encode(payload, settings.SECRET_KEY)
-            user_details = dict()
-            user_details['username'] = user.username
-            user_details['email'] = user.email
-            user_details['token'] = token
-            return Response(user_details, status=status.HTTP_200_OK)
-        except Exception as e:
-            raise e
-    else:
-        res = {
-            'error': 'failed to authenticate with given credentials'
-        }
-        return Response(res, status=status.HTTP_403_FORBIDDEN)
+        payload = jwt_payload_handler(user)
+        token = jwt.encode(payload, settings.SECRET_KEY)
+        user_details = dict()
+        user_details['username'] = user.username
+        user_details['email'] = user.email
+        user_details['token'] = token
+        return Response(user_details, status=status.HTTP_200_OK)
+
+    return Response({"Error": "User does not exist"}, status=status.HTTP_401_UNAUTHORIZED)

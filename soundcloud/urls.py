@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-admin.autodiscover()
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/user', include('user.api.urls', 'user_api')),

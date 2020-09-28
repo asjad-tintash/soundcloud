@@ -40,8 +40,11 @@ class SongViewSet(viewsets.ModelViewSet):
     '''
     queryset = Song.objects.all()
     serializer_class = SongSerializer
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (filters.SearchFilter, )
     search_fields = ['name', 'tag__content']
+
+    # def destroy(self, request, *args, **kwargs):
+    #     print("delete method called")
 
     def tag_song(self, request, *args, **kwargs):
         """
@@ -52,7 +55,7 @@ class SongViewSet(viewsets.ModelViewSet):
             song = Song.objects.get(id=song_id)
         except Song.DoesNotExist:
             return Response({"Error": "Song with this id does not exist"}, status=404)
-        serializer = TagSongSerializer(Song, data=self.request.data)
+        serializer = TagSongSerializer(Song, data=self.request.data, context={'request': request})
         serializer.is_valid()
         data = serializer.validate(request.data)
         serializer.update(song, data)
@@ -103,7 +106,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     filter_backends = (DjangoFilterBackend, )
-    filter_fields = ('song',)
+    filter_fields = ('song', )
     permission_classes = (IsAuthenticatedOrReadOnly, )
 
     def perform_create(self, serializer):

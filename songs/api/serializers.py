@@ -42,9 +42,7 @@ class TagSongSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         tag_content = data.get('tag_content', None)
-        if tag_content == "":
-            tag_content = None
-        if tag_content is None:
+        if not tag_content:
             raise serializers.ValidationError("Tag content is required")
         return data
 
