@@ -43,9 +43,6 @@ class SongViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter, )
     search_fields = ['name', 'tag__content']
 
-    # def destroy(self, request, *args, **kwargs):
-    #     print("delete method called")
-
     def tag_song(self, request, *args, **kwargs):
         """
         function to add tags in a song
@@ -61,7 +58,7 @@ class SongViewSet(viewsets.ModelViewSet):
         serializer.update(song, data)
         return Response({"message": "Tag added successfully"}, status=200)
 
-    def increment(self, song_id, field):
+    def increment(self, song_id):
         """
         function to increment views or like count depending on the field type
         field can be view or like
@@ -70,6 +67,7 @@ class SongViewSet(viewsets.ModelViewSet):
             song = Song.objects.get(id=song_id)
         except Song.DoesNotExist:
             return Response({"Error": "Song with this id does not exist"}, status=404)
+        field = getattr(self, "field")
         if field == "view":
             song.views += 1
         if field == "like":
@@ -84,7 +82,8 @@ class SongViewSet(viewsets.ModelViewSet):
             song_id = self.request.data['song_id']
         except:
             return Response({"Error": "Please pass a valid song id"}, status=400)
-        self.increment(song_id, "view")
+        setattr(self, "field", "view")
+        self.increment(song_id)
         return Response({"Message": "Views incremented"}, status=200)
 
     def like_song(self, request, *args, **kwargs):
@@ -95,7 +94,8 @@ class SongViewSet(viewsets.ModelViewSet):
             song_id = self.request.data['song_id']
         except:
             return Response({"Error": "Please pass a valid song id"}, status=400)
-        self.increment(song_id, "like")
+        setattr(self, "field", "like")
+        self.increment(song_id)
         return Response({"Message": "Likes incremented"}, status=200)
 
 
